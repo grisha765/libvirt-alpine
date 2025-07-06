@@ -11,7 +11,7 @@ A minimal Alpine Linux container running `libvirtd`, `virtlogd`, and `virtlockd`
 
 - Build the Image:
     ```bash
-    podman build -t libvirt:latest -f dockerfile .
+    sudo podman build -t libvirt:latest -f dockerfile .
     ```
 
 - Run the Container:
