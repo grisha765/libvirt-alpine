@@ -9,6 +9,7 @@ RUN apk add --no-cache \
     libvirt-common-drivers \
     libvirt-qemu \
     qemu-system-x86_64 \
+    qemu-system-i386 \
     qemu-audio-alsa \
     qemu-audio-oss \
     qemu-audio-pa \
@@ -24,8 +25,9 @@ RUN apk add --no-cache \
     qemu-hw-display-virtio-gpu-pci \
     qemu-hw-display-virtio-vga \
     qemu-hw-usb-redirect \
-    qemu-img \
-    && addgroup -S virt-user && adduser -S virt-user -G virt-user
+    qemu-img
+
+RUN addgroup -S virt-user && adduser -S virt-user -G virt-user
 
 COPY supervisord.conf /etc/supervisord.conf
 
