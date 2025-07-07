@@ -17,18 +17,32 @@ A minimal Alpine Linux container running `libvirtd`, `virtlogd`, and `virtlockd`
 - Run the Container:
     ```bash
     sudo podman run --privileged -d \
-      --name libvirt \
-      --restart=always \
-      --network host \
-      -v libvirt-run:/var/run/libvirt \
-      -v libvirt-lib:/var/lib/libvirt \
-      -v libvirt-qemu:/etc/libvirt/qemu \
-      -v libvirt-network:/etc/libvirt/network \
-      -v libvirt-storage:/etc/libvirt/storage \
-      -v /path/to/host-dir-images:/data/images \
-      --device /dev/kvm \
-      --device /dev/net/tun \
-      localhost/libvirt:latest
+        --name libvirt \
+        --restart=always \
+        --network host \
+        -v libvirt-run:/var/run/libvirt \
+        -v libvirt-lib:/var/lib/libvirt \
+        -v libvirt-qemu:/etc/libvirt/qemu \
+        -v libvirt-network:/etc/libvirt/network \
+        -v libvirt-storage:/etc/libvirt/storage \
+        -v /path/to/host-dir-images:/data/images \
+        --device /dev/kvm \
+        --device /dev/net/tun \
+        localhost/libvirt:latest
+    ```
+
+- Run with rootless:
+    ```bash
+    podman run -d \
+        --name libvirt \
+        -v $XDG_RUNTIME_DIR/libvirt:/var/run/libvirt:Z \
+        -v libvirt-lib:/var/lib/libvirt \
+        -v libvirt-qemu:/etc/libvirt/qemu \
+        -v libvirt-network:/etc/libvirt/network \
+        -v libvirt-storage:/etc/libvirt/storage \
+        -v $PWD/images:/data/images:Z \
+        --device /dev/kvm \
+        localhost/libvirt:latest
     ```
 
 ### Explanation of Flags
