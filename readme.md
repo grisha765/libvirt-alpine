@@ -14,7 +14,7 @@ A minimal Alpine Linux container running `libvirtd`, `virtlogd`, and `virtlockd`
     sudo podman build -t libvirt:latest -f dockerfile .
     ```
 
-- Run the Container:
+- Run the rootful Container:
     ```bash
     sudo podman run --privileged -d \
         --name libvirt \
@@ -31,46 +31,37 @@ A minimal Alpine Linux container running `libvirtd`, `virtlogd`, and `virtlockd`
         localhost/libvirt:latest
     ```
 
-- Run with rootless:
+- Run the rootless Container:
     ```bash
     podman run -d \
         --name libvirt \
-        -v $XDG_RUNTIME_DIR/libvirt:/var/run/libvirt:Z \
+        --restart=always \
+        -v $XDG_RUNTIME_DIR/libvirt:/var/run/libvirt:z \
         -v libvirt-lib:/var/lib/libvirt \
         -v libvirt-qemu:/etc/libvirt/qemu \
         -v libvirt-network:/etc/libvirt/network \
         -v libvirt-storage:/etc/libvirt/storage \
-        -v $PWD/images:/data/images:Z \
+        -v $PWD/images:/data/images:z \
         --device /dev/kvm \
         localhost/libvirt:latest
     ```
 
-### Explanation of Flags
-
-- `--privileged`: required for libvirt and KVM device access
-- `--network host`: exposes libvirt on the host's network
-- `--device /dev/kvm` and `/dev/net/tun`: required for VM creation and networking
-- `--restart=always`: ensures the container restarts on reboot
-- Volume mounts ensure libvirt state is persistent
-
 ### Connect with virsh
 
-- From a remote or local machine:
+- From a remote or tcp rootful machine:
     ```bash
     virsh -c 'qemu+tcp://<host-ip>/system' list --all
     ```
     - Replace `<host-ip>` with the actual IP address of the host running the container.
+
+- From a remote or socket rootless machine:
+    ```bash
+    virsh -c 'qemu+unix:///session?socket=$XDG_RUNTIME_DIR/libvirt/libvirt-sock' list --all
+    ```
 
 ## Notes
 
 - Authentication is **disabled** in this configuration (for simplicity). Do **not** expose this to the public internet without proper firewalling or VPN.
 - VM images should be stored in `/data/images` inside the container (mapped from host).
 - You can modify the `libvirtd.conf`, `qemu.conf`, or `supervisord.conf` files before building to suit your setup.
-
-## Features
-
-- Alpine-based minimal image
-- libvirt over TCP (no TLS, no authentication)
-- QEMU/KVM virtualization support
-- Pre-configured with SPICE and VNC remote display support
-
+- [virt-manager](https://flathub.org/apps/org.virt_manager.virt-manager) does not support environment variables, so instead of `$XDG_RUNTIME_DIR`, you must use the full path to the socket.
